@@ -1,0 +1,438 @@
+openapi: 3.0.4
+info:
+  title: Tariff Management
+  description: Managing tariffs in organizations
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.html
+  version: 1.0.0
+servers:
+  - url: http://localhost:8080/v1
+tags:
+  - name: tariff
+    description: Тариф
+paths:
+  /tariff/create:
+    post:
+      tags:
+        - tariff
+      summary: Create tariff
+      operationId: tariffCreate
+      requestBody:
+        description: Request body
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TariffCreateRequest'
+        required: true
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TariffCreateResponse'
+  /tariff/read:
+    post:
+      tags:
+        - tariff
+      summary: Read tariff
+      operationId: tariffRead
+      requestBody:
+        description: Request body
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TariffReadRequest'
+        required: true
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TariffReadResponse'
+  /tariff/update:
+    post:
+      tags:
+        - tariff
+      summary: Update tariff
+      operationId: tariffUpdate
+      requestBody:
+        description: Request body
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TariffUpdateRequest'
+        required: true
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TariffUpdateResponse'
+  /tariff/delete:
+    post:
+      tags:
+        - tariff
+      summary: Delete tariff
+      operationId: tariffDelete
+      requestBody:
+        description: Request body
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TariffDeleteRequest'
+        required: true
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TariffDeleteResponse'
+  /tariff/search:
+    post:
+      tags:
+        - tariff
+      summary: Search tariff
+      operationId: tariffSearch
+      requestBody:
+        description: Request body
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TariffSearchRequest'
+        required: true
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TariffSearchResponse'
+
+components:
+  schemas:
+
+    IRequest:
+      type: object
+      description: Базовый интерфейс для всех запросов
+      properties:
+        requestType:
+          type: string
+          description: Поле-дескриминатор для вычисления типа запроса
+          example: create
+        requestId:
+          type: string
+          description: Идентификатор запроса для отладки
+      discriminator:
+        propertyName: requestType
+        mapping:
+          create: '#/components/schemas/TariffCreateRequest'
+          read:   '#/components/schemas/TariffReadRequest'
+          update: '#/components/schemas/TariffUpdateRequest'
+          delete: '#/components/schemas/TariffDeleteRequest'
+          search: '#/components/schemas/TariffSearchRequest'
+
+    Error:
+      type: object
+      properties:
+        code:
+          type: string
+        group:
+          type: string
+        field:
+          type: string
+        message:
+          type: string
+
+    ResponseResult:
+      type: string
+      enum:
+        - success
+        - error
+
+    IResponse:
+      type: object
+      description: Базовый интерфейс для всех ответов
+      properties:
+        responseType:
+          type: string
+          description: Поле-дескриминатор для вычисления типа запроса
+          example: create
+        requestId:
+          type: string
+          description: Идентификатор запроса для отладки
+        result:
+          $ref: '#/components/schemas/ResponseResult'
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/Error'
+
+      discriminator:
+        propertyName: responseType
+        mapping:
+          create: '#/components/schemas/TariffCreateResponse'
+          read:   '#/components/schemas/TariffReadResponse'
+          update: '#/components/schemas/TariffUpdateResponse'
+          delete: '#/components/schemas/TariffDeleteResponse'
+          search: '#/components/schemas/TariffSearchResponse'
+          init: '#/components/schemas/TariffInitResponse'
+
+
+    UserId:
+      type: string
+      description: Идентификатор пользователя
+    TariffId:
+      type: string
+      description: Идентификатор тарифа
+    TariffLock:
+      type: string
+      description: Версия оптимистичной блокировки
+
+
+    BaseTariff:
+      type: object
+      description: Объект описывает свойства, одинаковые для create и update
+      properties:
+        tariffCode:
+          type: string
+          description: код тарифа
+        tariffTypeCode:
+          $ref: '#/components/schemas/TariffTypes'
+        serviceTypeCode:
+          $ref: '#/components/schemas/ServiceTypes'
+        description:
+          type: string
+          description: Описание тарифа
+        status:
+          $ref: '#/components/schemas/TariffStatuses'
+        beginDate:
+          type: string
+          description: Дата начала действия тарифа
+        endDate:
+          type: string
+          description: Дата окончания действия тарифа
+
+
+    TariffTypes:
+      type: string
+      description: 'Возможные типы тарифов'
+      enum:
+        - standart
+        - individual
+
+    ServiceTypes:
+      type: string
+      description: 'Возможные типы услуг'
+      enum:
+        - keepAccount
+        - openAccount
+        - closeAccount
+
+    TariffStatuses:
+      type: string
+      description: 'Возможные статусы тарифа'
+      enum:
+        - project
+        - active
+
+
+    TariffInitResponse:
+      allOf:
+        - $ref: '#/components/schemas/IResponse'
+
+    TariffCreateObject:
+      allOf:
+        - $ref: '#/components/schemas/BaseTariff'
+
+    TariffCreateRequest:
+      allOf:
+        - $ref: '#/components/schemas/IRequest'
+        - $ref: '#/components/schemas/TariffRequestDebug'
+        - type: object
+          properties:
+            tariff:
+              $ref: '#/components/schemas/TariffCreateObject'
+
+    TariffReadObject:
+      allOf:
+        - type: object
+          properties:
+            id:
+              $ref: '#/components/schemas/TariffId'
+
+    TariffReadRequest:
+      allOf:
+        - $ref: '#/components/schemas/IRequest'
+        - $ref: '#/components/schemas/TariffRequestDebug'
+        - type: object
+          properties:
+            tariff:
+              $ref: '#/components/schemas/TariffReadObject'
+
+    TariffUpdateObject:
+      allOf:
+        - $ref: '#/components/schemas/BaseTariff'
+        - type: object
+          properties:
+            id:
+              $ref: '#/components/schemas/TariffId'
+            lock:
+              $ref: '#/components/schemas/TariffLock'
+
+    TariffUpdateRequest:
+      allOf:
+        - $ref: '#/components/schemas/IRequest'
+        - $ref: '#/components/schemas/TariffRequestDebug'
+        - type: object
+          properties:
+            tariff:
+              $ref: '#/components/schemas/TariffUpdateObject'
+
+    TariffDeleteObject:
+      allOf:
+        - type: object
+          properties:
+            id:
+              $ref: '#/components/schemas/TariffId'
+            lock:
+              $ref: '#/components/schemas/TariffLock'
+
+    TariffDeleteRequest:
+      allOf:
+        - $ref: '#/components/schemas/IRequest'
+        - $ref: '#/components/schemas/TariffRequestDebug'
+        - type: object
+          properties:
+            tariff:
+              $ref: '#/components/schemas/TariffDeleteObject'
+
+    TariffSearchFilter:
+      type: object
+      description: Набор фильтров для поиска
+      properties:
+        searchString:
+          type: string
+          description: Поисковая строка, которая будет искаться в тарифах
+
+    TariffSearchRequest:
+      allOf:
+        - $ref: '#/components/schemas/IRequest'
+        - $ref: '#/components/schemas/TariffRequestDebug'
+        - type: object
+          properties:
+            tariffFilter:
+              $ref: '#/components/schemas/TariffSearchFilter'
+
+    TariffResponseObject:
+      allOf:
+        - $ref: '#/components/schemas/BaseTariff'
+        - type: object
+          description: Объект, который возвращается в ответе бэкенда
+          properties:
+            id:
+              $ref: '#/components/schemas/TariffId'
+            ownerId:
+              $ref: '#/components/schemas/UserId'
+            lock:
+              $ref: '#/components/schemas/TariffLock'
+            permissions:
+              type: array
+              uniqueItems: true
+              items:
+                $ref: '#/components/schemas/TariffPermissions'
+
+    TariffPermissions:
+      type: string
+      description: Доступы для операциониста для операций над тарифами
+      enum:
+        - read
+        - update
+        - delete
+        - makeActive
+
+    TariffResponseSingle:
+      allOf:
+        - type: object
+          description: Ответ с одним объектом тарифа
+          properties:
+            tariff:
+              $ref: '#/components/schemas/TariffResponseObject'
+
+    TariffResponseMulti:
+      allOf:
+        - type: object
+          description: Список найденных тарифов
+          properties:
+            tariffs:
+              type: array
+              items:
+                $ref: '#/components/schemas/TariffResponseObject'
+
+    TariffCreateResponse:
+      allOf:
+        - $ref: '#/components/schemas/IResponse'
+        - $ref: '#/components/schemas/TariffResponseSingle'
+
+    TariffReadResponse:
+      allOf:
+        - $ref: '#/components/schemas/IResponse'
+        - $ref: '#/components/schemas/TariffResponseSingle'
+
+    TariffUpdateResponse:
+      allOf:
+        - $ref: '#/components/schemas/IResponse'
+        - $ref: '#/components/schemas/TariffResponseSingle'
+
+    TariffDeleteResponse:
+      allOf:
+        - $ref: '#/components/schemas/IResponse'
+        - $ref: '#/components/schemas/TariffResponseSingle'
+
+    TariffSearchResponse:
+      allOf:
+        - $ref: '#/components/schemas/IResponse'
+        - $ref: '#/components/schemas/TariffResponseMulti'
+
+
+    # STUBS ======================
+    TariffRequestDebugModes:
+      type: string
+      enum:
+        - prod
+        - test
+        - stub
+
+    TariffRequestDebug:
+      type: object
+      properties:
+        debug:
+          $ref: '#/components/schemas/TariffDebug'
+
+    TariffDebug:
+      type: object
+      properties:
+        mode:
+          $ref: '#/components/schemas/TariffRequestDebugModes'
+        stub:
+          $ref: '#/components/schemas/TariffRequestDebugStubs'
+
+    TariffRequestDebugStubs:
+      type: string
+      description: Перечисления всех стабов
+      enum:
+        - success
+        - notFound
+        - badId
+        - badTariffTypeCode
+        - badServiceTypeCode
+        - badStatus
+        - badDescription
+        - badBeginDate
+        - badEndDate
+        - cannotDelete
+        - badSearchString

@@ -8,7 +8,7 @@
 
 1. TariffId - идентификатор тарифа
 2. TariffCode - код тарифа
-3. TariffType - тип тарифа (Standart/Individual)
+3. TariffTypeCode - тип тарифа (Standart/Individual)
 4. ServiceTypeCode - код тип услуги
 5. Description - описание тарифа
 6. Status - статус тарифа (Project/Active)
